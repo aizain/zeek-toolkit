@@ -105,6 +105,9 @@ func (client *ImageClient) GetImageContent(key string) ([]byte, error) {
 	data, err := io.ReadAll(stream)
 	if err != nil {
 		fmt.Printf("read image[%s] err %d\n", key, err)
+		fmt.Printf("read image[%s] restore %s", key, ret.BceRestore)
+		fmt.Printf("read image[%s] expire %s", key, ret.Expires)
+		fmt.Printf("read image[%s] etag %s", key, ret.ETag)
 		return nil, err
 	}
 	return data, nil

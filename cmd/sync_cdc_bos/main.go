@@ -69,24 +69,26 @@ func main() {
 			wg.Add(1)
 			time.Sleep(10 * time.Second)
 			go func() {
+				defer wg.Done()
+
 				var index int
 				for meta.BceRestore == "" || meta.BceRestore == "ongoing-request=\"true\"" {
 					meta, err = client.GetImageMeta(objType.Key)
 					if err != nil {
-						log.Fatal("get images err" + err.Error())
+						log.Fatal("2 get images err" + err.Error())
 						return
 					}
 					if index%14 == 0 {
 						log.Printf("wait image[%s] restore %d....", objType.Key, index)
 					}
-					time.Sleep(10 * time.Minute)
+					time.Sleep(5 * time.Minute)
 					index++
 				}
 				log.Printf("restore image[%s] ok %d", objType.Key, index)
 
 				content, err := client.GetImageContent(objType.Key)
 				if err != nil {
-					log.Fatal("get images content err" + err.Error())
+					log.Fatal("3 get images content err" + err.Error())
 					return
 				}
 				db.Create(&images.TableTestCdcImages{
@@ -97,13 +99,11 @@ func main() {
 					Md5:         meta.ContentMD5,
 					Content:     base64.StdEncoding.EncodeToString(content),
 				}).Commit()
-
-				wg.Done()
 			}()
 		} else {
 			content, err := client.GetImageContent(objType.Key)
 			if err != nil {
-				log.Fatal("list images err" + err.Error())
+				log.Fatal("1 get images err" + err.Error())
 				return
 			}
 			db.Create(&images.TableTestCdcImages{
